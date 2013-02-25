@@ -5,16 +5,10 @@
 
 #Here's a general idea for you to start with
 
-def open_file (record)
-  File.open(record)
-end
-
-def split (split_param, item)
-  item.split(split_param)
-end
-
 class Person
   attr_accessor :last_name, :first_name, :gender, :color, :date_of_birth
+
+  @@all_people = []
 
   def initialize(params={})
     @last_name = params[:last_name]
@@ -25,15 +19,62 @@ class Person
     @middle_initial = params[:middle_initial]
   end
 
+def open_file(record)
+  File.open(record)
 end
 
-open_file('comma.txt').each_with_index do |line, index|
-  people = []
-  people << Person.new(:last_name => split(', ', line)[0], 
-                       :first_name => split(', ', line)[1])
-  people[0]
+def split(split_param, item)
+  item.split(split_param)
 end
 
+def comma_person (line)
+  person = Person.new
+  person.last_name = split(', ', line)[0]
+  person.first_name = split(', ', line)[1]
+  person.gender = split(', ', line)[2]
+  person.color = split(', ', line)[3]
+  person.dob = split(', ', line)[4].strip.gsub('-','/')
+  person
+end
+
+
+def pipe_person (line)
+  person = Person.new
+  person.last_name = split(' | ', line)[0]
+  person.first_name = split(' | ', line)[1]
+  person.middle_initial = split(' | ', line)[2]
+  person.gender = split(' | ', line)[3].gsub(/[FM]/,'F' => 'Female', 'M' => 'Male')
+  person.color = split(' | ', line)[4]
+  person.dob = split(' | ', line)[5].strip.gsub('-','/')
+  person
+end
+
+def space_person (line)
+  person = Person.new
+  person.last_name = split(' ', line)[0]
+  person.first_name = split(' ', line)[1]
+  person.middle_initial = split(' ', line)[2]
+  person.gender = split(' ', line)[3].gsub(/[FM]/,'F' => 'Female', 'M' => 'Male')
+  person.color = split(' ', line)[5]
+  person.dob = split(' ', line)[4].strip.gsub('-','/')
+  person
+end
+
+
+
+
+def get_people(file_name)
+  open_file(file_name).each do |line|
+
+ 
+end
+
+
+
+
+
+
+end
 # split_param = ', '
 # split_param = ' | '
 # split_param = ' '
