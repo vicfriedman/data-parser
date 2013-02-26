@@ -33,9 +33,9 @@ class Person
     File.open(record)
   end
 
-  def split(split_param, item)
-    item.split(split_param)
-  end
+  # def split(split_param, item)
+  #   item.split(split_param)
+  # end
 
 
   def comma_person
