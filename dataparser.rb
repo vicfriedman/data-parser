@@ -4,21 +4,25 @@
 
 
 #Here's a general idea for you to start with
-
+require 'pry'
 class Person
-  attr_accessor :last_name, :middle_initial, :first_name, :gender, :color, :date_of_birth
+  attr_accessor :last_name, :middle_initial, :first_name, :gender, :color, :date_of_birth, :line_split
 
   @@all_people = []
 
-  def initialize(params={})
-    @last_name = params[:last_name]
-    @middle_initial = params[:middle_initial]
-    @first_name = params[:first_name]
-    @gender = params[:gender]
-    @color = params[:color]
-    @date_of_birth = params[:date_of_birth]
-    @middle_initial = params[:middle_initial]
-    @@all_people << self
+  def initialize(line)
+    @line = line
+    find_line_type
+  end
+
+  def find_line_type
+    if @line.include?(', ')
+      comma_person
+    elsif @line.include?('| ')
+      pipe_person
+    else
+      space_person
+    end
   end
 
   def self.all
@@ -34,34 +38,35 @@ class Person
   end
 
 
-  def comma_person(line)
-    @last_name = split(', ', line)[0]
-    @first_name = split(', ', line)[1]
-    @gender = split(', ', line)[2]
-    @color = split(', ', line)[3]
-    @date_of_birth = split(', ', line)[4].strip.gsub('-','/')
-    @@all_people << self
+  def comma_person
+    @line_split = @line.split(', ')
+    @last_name =  @line_split[0]
+    @first_name =  @line_split[1]
+    @gender =  @line_split[2]
+    @color =  @line_split[3]
+    @date_of_birth =  @line_split[4].strip.gsub('-','/')
   end
 
 
-  def pipe_person (line)
-    @last_name = split(' | ', line)[0]
-    @first_name = split(' | ', line)[1]
-    @middle_initial = split(' | ', line)[2]
-    @gender = split(' | ', line)[3].gsub(/[FM]/,'F' => 'Female', 'M' => 'Male')
-    @color = split(' | ', line)[4]
-    @date_of_birth= split(' | ', line)[5].strip.gsub('-','/')
-    @@all_people << self
+  def pipe_person
+    @line_split = @line.split('| ')
+    @last_name = @line_split[0]
+    @first_name = @line_split[1]
+    @middle_initial = @line_split[2]
+    @gender = @line_split[3].gsub(/[FM]/,'F' => 'Female', 'M' => 'Male')
+    @color = @line_split[4]
+    @date_of_birth= @line_split[5].strip.gsub('-','/')
+    
   end
 
-  def space_person(line)
-    @last_name = split(' ', line)[0]
-    @first_name = split(' ', line)[1]
-    @middle_initial = split(' ', line)[2]
-    @gender = split(' ', line)[3].gsub(/[FM]/,'F' => 'Female', 'M' => 'Male')
-    @color = split(' ', line)[5]
-    @date_of_birth = split(' ', line)[4].strip.gsub('-','/')
-    @@all_people << self
+  def space_person
+    @line_split = @line.split('| ')
+    @last_name = @line_split[0]
+    @first_name = @line_split[1]
+    @middle_initial = @line_split[2]
+    @gender = @line_split[3].to_s.gsub(/[FM]/,'F' => 'Female', 'M' => 'Male')
+    @color = @line_split[5]
+    @date_of_birth = @line_split[4].to_s.strip.gsub('-','/')
   end
 
 end
@@ -69,11 +74,11 @@ end
   def get_people(file_name)
   open_file(file_name).each do |line|
     if line.include?(', ')
-      Person.all << comma_person(line)
+      @@all_people << comma_person(line)
     elsif line.include('| ')
-      Person.all << pipe_person(line)
+      @@all_people << pipe_person(line)
     else
-      Person.all << space_person(line)
+      @@all_people << space_person(line)
     end
   end
   Person.all
@@ -85,17 +90,29 @@ def output(people)
   end
 end
 
-def sort_people
- get_people('comma.txt') + get_people('pipe.txt') + get_people('space.txt')
-  # puts "Output 1: By Gender, then Last Name (ascending)"
-  # output(people.sort_by {|person| person.gender})
-  # puts "\n"
-  # puts "Output 2: By Date of Birth (ascending)"
-  # output(people.sort_by {|person| person.date_of_birth})
-  # puts "\n"
-  # puts "Output 3: By Last Name (descending)"
-  # output(people.sort_by {|person| person.last_name}.reverse)
+files = ["comma.txt", "pipe.txt", "space.txt"]
+
+files.each do |file|
+  File.readlines(file).each do |line|
+    Person.new(line)
+  end
 end
+binding.pry
+Person.all ## still returning an empty array
+
+# def sort_people
+#  get_people('comma.txt') + get_people('pipe.txt') + get_people('space.txt')
+
+
+#   # puts "Output 1: By Gender, then Last Name (ascending)"
+#   # output(people.sort_by {|person| person.gender})
+#   # puts "\n"
+#   # puts "Output 2: By Date of Birth (ascending)"
+#   # output(people.sort_by {|person| person.date_of_birth})
+#   # puts "\n"
+#   # puts "Output 3: By Last Name (descending)"
+#   # output(people.sort_by {|person| person.last_name}.reverse)
+# end
 
 
 
